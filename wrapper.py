@@ -108,8 +108,7 @@ class MyZINCDataset(torch_geometric.datasets.ZINC):
             return self.index_select(idx)
 
 class MyDataset(Dataset):
-    def __init__(self, input_path, split_list, mode):
-        input_dict = np.load(input_path)
+    def __init__(self, input_dict, split_list, mode):
         
         #split the dataset
         length = len(input_dict)

@@ -67,16 +67,17 @@ def get_dataset(dataset_name='abaaba'):
         }
     elif dataset_name == 'Myzinc':
         input_path = '/home/Zhaoxu/molecule_pretraining/data/new_input.npy'
-        split_list = [8, 9]
+        input_dict = np.load(input_path, allow_pickle=True)
+        split_list = [8 / 10, 9 / 10]
         dataset = {
             'num_class': 1,
             'loss_fn': F.mse_loss,
             'metric': 'mae',
             'metric_mode': 'min',
             'evaluator': ogb.lsc.PCQM4MEvaluator(),
-            'train_dataset': MyDataset(input_path, split_list, mode='train'),
-            'valid_dataset': MyDataset(input_path, split_list, mode='valid'),
-            'test_dataset': MyDataset(input_path, split_list, mode='test'),
+            'train_dataset': MyDataset(input_dict, split_list, mode='train'),
+            'valid_dataset': MyDataset(input_dict, split_list, mode='valid'),
+            'test_dataset': MyDataset(input_dict, split_list, mode='test'),
             'max_node': 128,
         }
     else:

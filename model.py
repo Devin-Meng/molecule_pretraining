@@ -240,7 +240,7 @@ class Graphormer(pl.LightningModule):
         return loss
 
     def validation_step(self, batched_data, batch_idx):
-        if self.dataset_name in ['PCQM4M-LSC', 'ZINC']:
+        if self.dataset_name in ['PCQM4M-LSC', 'ZINC', 'Myzinc']:
             y_pred = self(batched_data).view(-1)
             y_true = batched_data.y.view(-1)
         else:
@@ -267,7 +267,7 @@ class Graphormer(pl.LightningModule):
                 pass
 
     def test_step(self, batched_data, batch_idx):
-        if self.dataset_name in ['PCQM4M-LSC', 'ZINC']:
+        if self.dataset_name in ['PCQM4M-LSC', 'ZINC', 'Myzinc']:
             y_pred = self(batched_data).view(-1)
             y_true = batched_data.y.view(-1)
         else:
