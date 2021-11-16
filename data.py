@@ -50,7 +50,7 @@ def get_dataset(dataset_name='abaaba'):
             'metric': 'mae',
             'metric_mode': 'min',
             'evaluator': ogb.lsc.PCQM4MEvaluator(),
-            'dataset': MyPygPCQM4MDataset(root='../../dataset'),
+            'dataset': MyPygPCQM4MDataset(root='data'),
             'max_node': 128,
         }
     elif dataset_name == 'ZINC':
