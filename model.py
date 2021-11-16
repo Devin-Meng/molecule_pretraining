@@ -182,6 +182,13 @@ class Graphormer(pl.LightningModule):
         if self.dataset_name == 'PCQM4M-LSC':
             # get whole graph rep
             output = self.out_proj(output[:, 0, :])
+        elif self.dataset_name == 'Myzinc':
+            #add code to fit in my label
+            output = self.downstream_out_proj(output[:, 1:, :])
+            pad_matrix = batched_data.pad_matrix
+            pad_matrix = pad_matrix.unsqueeze(2)
+            #breakpoint()
+            output = output * pad_matrix
         else:
             output = self.downstream_out_proj(output[:, 0, :])
         return output

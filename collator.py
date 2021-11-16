@@ -13,6 +13,13 @@ def pad_1d_unsqueeze(x, padlen):
         x = new_x
     return x.unsqueeze(0)
 
+def pad_charges(x, padlen):
+    xlen = x.size(0)
+    if xlen < padlen:
+        new_x = x.new_zeros([padlen], dtype=x.dtype)
+        new_x[:xlen] = x
+        x = new_x
+    return x.unsqueeze(0)
 
 def pad_2d_unsqueeze(x, padlen):
     x = x + 1  # pad id = 0
@@ -65,9 +72,10 @@ def pad_3d_unsqueeze(x, padlen1, padlen2, padlen3):
 
 
 class Batch():
-    def __init__(self, idx, attn_bias, attn_edge_type, spatial_pos, in_degree, out_degree, x, edge_input, y):
+    def __init__(self, idx, pad_matrix, attn_bias, attn_edge_type, spatial_pos, in_degree, out_degree, x, edge_input, y):
         super(Batch, self).__init__()
         self.idx = idx
+        self.pad_matrix = pad_matrix
         self.in_degree, self.out_degree = in_degree, out_degree
         self.x, self.y = x, y
         self.attn_bias, self.attn_edge_type, self.spatial_pos = attn_bias, attn_edge_type, spatial_pos
@@ -75,6 +83,7 @@ class Batch():
 
     def to(self, device):
         self.idx = self.idx.to(device)
+        self.pad_matrix = self.pad_matrix.to(device)
         self.in_degree, self.out_degree = self.in_degree.to(
             device), self.out_degree.to(device)
         self.x, self.y = self.x.to(device), self.y.to(device)
@@ -91,8 +100,8 @@ def collator(items, max_node=512, multi_hop_max_dist=20, spatial_pos_max=20):
     items = [
         item for item in items if item is not None and item.x.size(0) <= max_node]
     items = [(item.idx, item.attn_bias, item.attn_edge_type, item.spatial_pos, item.in_degree,
-              item.out_degree, item.x, item.edge_input[:, :, :multi_hop_max_dist, :], item.y) for item in items]
-    idxs, attn_biases, attn_edge_types, spatial_poses, in_degrees, out_degrees, xs, edge_inputs, ys = zip(
+              item.out_degree, item.x, item.N, item.edge_input[:, :, :multi_hop_max_dist, :], item.y) for item in items]
+    idxs, attn_biases, attn_edge_types, spatial_poses, in_degrees, out_degrees, xs, N, edge_inputs, ys = zip(
         *items)
 
     for idx, _ in enumerate(attn_biases):
@@ -113,8 +122,14 @@ def collator(items, max_node=512, multi_hop_max_dist=20, spatial_pos_max=20):
                           for i in in_degrees])
     out_degree = torch.cat([pad_1d_unsqueeze(i, max_node_num)
                            for i in out_degrees])
+    
+    #add 0-1 matrix to deal with padding problem.
+    pad_matrix = torch.zeros_like(y, dtype=torch.float32)
+    for i in range(len(N)):
+        pad_matrix[int(i), :int(N[i])] = 1
     return Batch(
         idx=torch.LongTensor(idxs),
+        pad_matrix=pad_matrix,
         attn_bias=attn_bias,
         attn_edge_type=attn_edge_type,
         spatial_pos=spatial_pos,

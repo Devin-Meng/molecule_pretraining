@@ -55,6 +55,7 @@ def preprocess_item(item):
     item.in_degree = adj.long().sum(dim=1).view(-1)
     item.out_degree = adj.long().sum(dim=0).view(-1)
     item.edge_input = torch.from_numpy(edge_input).long()
+    item.N = x.size(0)
 
     return item
 
