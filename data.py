@@ -2,8 +2,7 @@
 # Licensed under the MIT License.
 
 from collator import collator
-from wrapper import MyGraphPropPredDataset, MyPygPCQM4MDataset, MyZINCDataset
-
+from wrapper import MyGraphPropPredDataset, MyPygPCQM4MDataset, MyZINCDataset, MyDataset
 from pytorch_lightning import LightningDataModule
 import torch
 from torch.nn import functional as F
@@ -12,6 +11,7 @@ import ogb
 import ogb.lsc
 import ogb.graphproppred
 from functools import partial
+import numpy as np
 
 
 dataset = None
@@ -65,6 +65,20 @@ def get_dataset(dataset_name='abaaba'):
             'test_dataset': MyZINCDataset(subset=True, root='../../dataset/pyg_zinc', split='test'),
             'max_node': 128,
         }
+    elif dataset_name == 'Myzinc':
+        input_path = '/home/Zhaoxu/molecule_pretraining/data/new_input.npy'
+        split_list = [8, 9]
+        dataset = {
+            'num_class': 1,
+            'loss_fn': F.mse_loss,
+            'metric': 'mae',
+            'metric_mode': 'min',
+            'evaluator': ogb.lsc.PCQM4MEvaluator(),
+            'train_dataset': MyDataset(input_path, split_list, mode='train'),
+            'valid_dataset': MyDataset(input_path, split_list, mode='valid'),
+            'test_dataset': MyDataset(input_path, split_list, mode='test'),
+            'max_node': 128,
+        }
     else:
         raise NotImplementedError
 
@@ -100,7 +114,7 @@ class GraphDataModule(LightningDataModule):
         self.spatial_pos_max = spatial_pos_max
 
     def setup(self, stage: str = None):
-        if self.dataset_name == 'ZINC':
+        if self.dataset_name == 'ZINC' or 'Myzinc':
             self.dataset_train = self.dataset['train_dataset']
             self.dataset_val = self.dataset['valid_dataset']
             self.dataset_test = self.dataset['test_dataset']

@@ -7,6 +7,9 @@ import torch_geometric.datasets
 from ogb.graphproppred import PygGraphPropPredDataset
 from ogb.lsc.pcqm4m_pyg import PygPCQM4MDataset
 import pyximport
+from torch.utils.data import Dataset
+from ogb.utils import smiles2graph
+from torch_geometric.data import Data
 
 pyximport.install(setup_args={'include_dirs': np.get_include()})
 import algos
@@ -102,3 +105,37 @@ class MyZINCDataset(torch_geometric.datasets.ZINC):
             return preprocess_item(item)
         else:
             return self.index_select(idx)
+
+class MyDataset(Dataset):
+    def __init__(self, input_path, split_list, mode):
+        input_dict = np.load(input_path)
+        
+        #split the dataset
+        length = len(input_dict)
+        split_idx = {'train': int(length * split_list[0]), 'valid': int(length * split_list[1]), 'test': int(length)}
+        if mode == 'train':
+            self.data = input_dict[:split_idx['train']]
+        elif mode == 'valid':
+            self.data = input_dict[split_idx['train']:split_idx['valid']]
+        elif mode == 'test':
+            self.data = input_dict[split_idx['valid']:]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        smi = self.data[idx]['smi']
+        charges = self.data[idx]['charges']
+        graph = smiles2graph(smi)
+        assert(len(graph['edge_feat']) == graph['edge_index'].shape[1])
+        assert(len(graph['node_feat']) == graph['num_nodes'])
+
+        data = Data()
+        data.__num_nodes__ = int(graph['num_nodes'])
+        data.edge_index = torch.from_numpy(graph['edge_index']).to(torch.int64)
+        data.edge_attr = torch.from_numpy(graph['edge_feat']).to(torch.int64)
+        data.x = torch.from_numpy(graph['node_feat']).to(torch.int64)
+        data.y = torch.Tensor(charges)
+        data.idx = idx
+
+        return preprocess_item(data)
