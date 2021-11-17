@@ -40,8 +40,8 @@ def nameassigner(dict_smi, dict_charge):
         data_list.append(data_dict)
     return data_list
 
-input_path = 'data/all_mol.smi'
-label_path = 'data/all_charge.txt'
+input_path = 'data/smiles_all.smi'
+label_path = 'data/charges_all.txt'
 save_path = 'data/input_dict.npy'
 
 dict_smi = smilesreader(input_path)
