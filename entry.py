@@ -9,7 +9,7 @@ from pprint import pprint
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 import os
-
+from pytorch_lightning.loggers import WandbLogger
 
 def cli_main():
     # ------------
@@ -25,6 +25,7 @@ def cli_main():
         print(args)
     pl.seed_everything(args.seed)
 
+    wandb_logger = WandbLogger(project="molecule_pretraining")
     # ------------
     # data
     # ------------
@@ -97,6 +98,7 @@ def cli_main():
     if not args.test and not args.validate and os.path.exists(dirpath + '/last.ckpt'):
         args.resume_from_checkpoint = dirpath + '/last.ckpt'
         print('args.resume_from_checkpoint', args.resume_from_checkpoint)
+    args.logger = wandb_logger
     trainer = pl.Trainer.from_argparse_args(args)
     trainer.callbacks.append(checkpoint_callback)
     trainer.callbacks.append(LearningRateMonitor(logging_interval='step'))
