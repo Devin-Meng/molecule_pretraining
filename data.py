@@ -66,7 +66,7 @@ def get_dataset(dataset_name='abaaba'):
             'max_node': 128,
         }
     elif dataset_name == 'Myzinc':
-        input_path = '/home/Zhaoxu/molecule_pretraining/data/input_dict.npy'
+        input_path = '/home/Zhaoxu/molecule_pretraining/data/new_dict.npy'
         input_dict = np.load(input_path, allow_pickle=True)
         split_list = [8 / 10, 9 / 10]
         dataset = {

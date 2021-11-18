@@ -99,6 +99,7 @@ def cli_main():
         args.resume_from_checkpoint = dirpath + '/last.ckpt'
         print('args.resume_from_checkpoint', args.resume_from_checkpoint)
     args.logger = wandb_logger
+    args.progress_bar_refresh_rate=50
     trainer = pl.Trainer.from_argparse_args(args)
     trainer.callbacks.append(checkpoint_callback)
     trainer.callbacks.append(LearningRateMonitor(logging_interval='step'))
