@@ -1,6 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
 from model import Graphormer
 from data import GraphDataModule, get_dataset
 
@@ -99,6 +98,7 @@ def cli_main():
         args.resume_from_checkpoint = dirpath + '/last.ckpt'
         print('args.resume_from_checkpoint', args.resume_from_checkpoint)
     args.logger = wandb_logger
+    args.gpus = [6, 7, 8, 9]
     args.progress_bar_refresh_rate=50
     trainer = pl.Trainer.from_argparse_args(args)
     trainer.callbacks.append(checkpoint_callback)

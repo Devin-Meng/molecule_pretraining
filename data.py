@@ -71,7 +71,7 @@ def get_dataset(dataset_name='abaaba'):
         split_list = [8 / 10, 9 / 10]
         dataset = {
             'num_class': 1,
-            'loss_fn': F.mse_loss,
+            'loss_fn': F.l1_loss,
             'metric': 'mae',
             'metric_mode': 'min',
             'evaluator': ogb.lsc.PCQM4MEvaluator(),
