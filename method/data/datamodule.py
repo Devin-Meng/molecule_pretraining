@@ -31,11 +31,9 @@ class ZincDataModule(pl.LightningDataModule):
         self.multi_hop_max_dist = multi_hop_max_dist
         self.spatial_pos_max = spatial_pos_max
 
-    def prepare_data(self):
-        self.data = np.load(self.input_path,
-                                  allow_pickle=True)
-
     def setup(self, stage, str = None):
+        self.data = np.load(self.input_path, 
+                            allow_pickle=True)
         length = len(self.data)
         train_split = int(length * self.split_prop['train'])
         valid_split = int(length * (self.split_prop['train'] +

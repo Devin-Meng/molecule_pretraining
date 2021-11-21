@@ -6,7 +6,7 @@ from torch_geometric.data import Data
 from ogb.utils import smiles2graph
 
 import pyximport
-sys.path.append('/home/zhaoxu/molecule_pretraining/src/method/data')
+sys.path.append('/home/Zhaoxu/molecule_pretraining/src/method/data')
 pyximport.install(pyximport=True, setup_args={'include_dirs': np.get_include()})
 import algos
 

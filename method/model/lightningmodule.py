@@ -25,6 +25,7 @@ class MyLightningModule(pl.LightningModule):
         dropout_rate,
         intput_dropout_rate,
         num_class,
+        metric,
         weight_decay,
         ffn_dim,
         warmup_updates,
@@ -70,7 +71,7 @@ class MyLightningModule(pl.LightningModule):
         self.graph_token_virtual_distance = nn.Embedding(1, num_heads)
 
         self.evaluator = PCQM4MEvaluator()
-        self.metric = 'mae'
+        self.metric = metric
         self.loss_fn = F.l1_loss
 
         self.warmup_updates = warmup_updates
@@ -247,4 +248,5 @@ class MyLightningModule(pl.LightningModule):
         parser.add_argument('--flag_step_size', type=float, default=1e-3)
         parser.add_argument('--flag_mag', type=float, default=1e-3)
         parser.add_argument('--num_class', type=int, default=1)
+        parser.add_argument('--metric', type=str, default='mae')
         return parent_parser

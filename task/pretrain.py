@@ -1,7 +1,8 @@
 from argparse import Namespace
 import time
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
 
 from method.data.datamodule import ZincDataModule
 from method.model.lightningmodule import MyLightningModule
@@ -12,7 +13,7 @@ def pretrain_model(args: Namespace):
 
     :param args: arguments
     """
-
+    wandb_logger = WandbLogger(project="molecule_pretraining")
     dm = ZincDataModule.from_argparse_args(args)
 
     model = MyLightningModule(
@@ -33,10 +34,24 @@ def pretrain_model(args: Namespace):
             flag=args.flag,
             flag_m=args.flag_m,
             flag_step_size=args.flag_step_size,
-            num_class=args.num_class
+            num_class=args.num_class,
+            metric=args.metric
         )
 
+    metric = 'valid_' + args.metric
+    dirpath = args.default_root_dir + f'/lightning_logs/checkpoints'
+    checkpoint_callback = ModelCheckpoint(
+        monitor=metric,
+        dirpath=dirpath,
+        filename='-{epoch:03d}-{' + metric + ':.4f}',
+        save_top_k=100,
+        mode='min',
+        save_last=True,
+    )
+
+    args.logger = wandb_logger
     trainer = pl.Trainer.from_argparse_args(args)
+    trainer.callbacks.append(checkpoint_callback)
     trainer.callbacks.append(LearningRateMonitor(logging_interval='step'))
     
     trainer.fit(model, datamodule=dm)
