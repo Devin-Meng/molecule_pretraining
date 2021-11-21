@@ -165,7 +165,7 @@ class MyLightningModule(pl.LightningModule):
 
         #output part
         output = self.downstream_out_proj(output[:, 1:, :])
-        output = 0.5 * self.tanh(output)
+        #output = 0.5 * self.tanh(output)
         pad_matrix = batched_data.pad_matrix
         pad_matrix = pad_matrix.unsqueeze(2)
         output = output * pad_matrix
