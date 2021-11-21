@@ -63,6 +63,7 @@ class MyLightningModule(pl.LightningModule):
         self.final_ln = nn.LayerNorm(hidden_dim)
         self.downstream_out_proj = nn.Linear(
             hidden_dim, num_class)
+        self.tanh = nn.Tanh()
         self.num_heads = num_heads
 
         self.graph_token = nn.Embedding(1, hidden_dim)
@@ -163,6 +164,7 @@ class MyLightningModule(pl.LightningModule):
 
         #output part
         output = self.downstream_out_proj(output[:, 1:, :])
+        output = 0.5 * self.tanh(output)
         pad_matrix = batched_data.pad_matrix
         pad_matrix = pad_matrix.unsqueeze(2)
         output = output * pad_matrix
